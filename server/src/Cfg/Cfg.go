@@ -9,4 +9,4 @@ var DbPwd = "lvjiaming.!@3"
 var DbName = "jizhangbo"
 
 // 服务器相关
-var ServerPort = "20001"
+var ServerPort = "20000"
