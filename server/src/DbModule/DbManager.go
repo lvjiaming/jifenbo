@@ -28,7 +28,7 @@ func (b *Db) Init() (err error) {
 		b.Port,
 		b.DbName,
 		)
-	fmt.Println("连接：", url)
+	fmt.Println("连接Db：", url)
 	b.Pool, err = sql.Open("mysql", url) // 全局只需要调用一次
 	if err != nil {
 		return

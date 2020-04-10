@@ -4,35 +4,16 @@
 package main
 
 import (
-	. "./DbModule"
+	. "./ModuleManager"
 	"fmt"
+	"sync"
 )
-import "./Cfg"
+var waitGroup sync.WaitGroup
 func main()  {
-	db := Db{
-		Ip: Cfg.DbIp,
-		Port: Cfg.DbPort,
-		MaxIdle: 10,
-		MaxOpen: 10,
-		User: Cfg.DbUser,
-		Pwd: Cfg.DbPwd,
-		DbName: Cfg.DbName,
-	}
-	err := db.Init()
-	if err != nil {
-		fmt.Println("连接出错：", err.Error())
-	} else {
-		fmt.Println("连接成功")
-		stmt, err := db.Pool.Prepare("INSERT user SET id=?,name=?,pw=?")
-		defer stmt.Close()
-		if err != nil {
-			fmt.Println("prepare出错了")
-		}
-		res, err := stmt.Exec(10, "张三", "1234")
-		if err != nil {
-			fmt.Println("插入出错")
-		} else {
-			fmt.Println("插入成功", res)
-		}
-	}
+	fmt.Print("等待准备工作\n")
+	waitGroup.Add(1)
+	go ConnectDb(&waitGroup) // 在其他包调用时需要传内存地址，传值无法生效
+	waitGroup.Wait()
+	fmt.Print("所有准备已就绪\n")
+	ConnectServer()
 }
