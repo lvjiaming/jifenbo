@@ -1,0 +1,1 @@
+protoc --go_out=../server/src/Proto ./msg.proto
