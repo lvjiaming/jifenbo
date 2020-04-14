@@ -76,14 +76,14 @@ export class GameEventManager extends EventManager{
             }
         };
         this.gameSocket.onmessage = function (data) {
-            data = JSON.parse(data.data);
-            cc.log("this._isLock: ", self._isLock);
-            if (self._isLock) {
-                self._eventCache.push({msgId: data.msgId, msgData: data.msgData});
-            } else {
-                self.onMsg(data.msgId, data.msgData);
-            }
-            return;
+            // data = JSON.parse(data.data);
+            // cc.log("this._isLock: ", self._isLock);
+            // if (self._isLock) {
+            //     self._eventCache.push({msgId: data.msgId, msgData: data.msgData});
+            // } else {
+            //     self.onMsg(data.msgId, data.msgData);
+            // }
+            // return;
             //  todo 以下是用protobuf传输数据写法
             if (cc.sys.isNative) {
                 self.handleData(data.data);
@@ -96,12 +96,13 @@ export class GameEventManager extends EventManager{
                 fileReader.readAsArrayBuffer(data.data);
             }
         };
-        this.gameSocket.sendMessage = (msgId, msgData) => {
-            if (this.gameSocket.readyState === WebSocket.OPEN) {
-                this.gameSocket.send(JSON.stringify({msgId: msgId, msgData: msgData}));
-            } else {
-                cc.error(`websocket connect error: ${this.gameSocket.readyState}`);
-            }
+        this.gameSocket.sendMessage = (data) => {
+            // if (this.gameSocket.readyState === WebSocket.OPEN) {
+            //     this.gameSocket.send(JSON.stringify({msgId: msgId, msgData: msgData}));
+            // } else {
+            //     cc.error(`websocket connect error: ${this.gameSocket.readyState}`);
+            // }
+            this.gameSocket.send(data);
         };
     }
     public reconnect(): void {
@@ -134,11 +135,19 @@ export class GameEventManager extends EventManager{
      * @param msgId 消息的id
      * @param msgData 消息的数据
      */
-    public sendMessage(msgId, msgData): void {
-        if (msgData === null || msgData === undefined) {
-            msgData = null;
-        }
-        this.gameSocket.sendMessage(msgId, msgData);
+    public sendMessage(msgId: number, msgData: any): void {
+        // if (msgData === null || msgData === undefined) {
+        //     msgData = null;
+        // }
+        // this.gameSocket.sendMessage(msgId, msgData);
+        const body = msgData.serializeBinary();
+        const uint8 = new Uint8Array(body.length + 1);
+        body.forEach((item, index) => {
+            uint8[index + 1] = item;
+        });
+        uint8[0] = msgId;
+        // cc.log(uint8);
+        this.gameSocket.sendMessage(uint8);
     }
     /**
      *  关闭与服务器的连接
@@ -152,6 +161,7 @@ export class GameEventManager extends EventManager{
      * @param data 数据
      */
     public handleData(data): void {
+        const self = this;
         const bytes = new Uint8Array(data);  // 转化数据
         let msgId = bytes[0];  //  协议id放在uint8Array的第一位
         const body = new Uint8Array(data, 1, data.byteLength - 1);

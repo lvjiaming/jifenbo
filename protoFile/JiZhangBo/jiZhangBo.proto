@@ -1,0 +1,16 @@
+syntax = "proto3";
+import "Common/msg.proto";
+
+message SelectInfo // 查询信息
+{
+    int32 id = 1;
+    string name = 2;
+    // repeated表示可重复
+    // 表示有多个Info
+    repeated Info infolist = 3;
+}
+
+message AddInfo // 新增信息
+{
+    Info info = 1;
+}
