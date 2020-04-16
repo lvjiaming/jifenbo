@@ -6,7 +6,8 @@ var DbIp = "localhost"
 var DbPort = "3306"
 var DbUser = "root"
 var DbPwd = "lvjiaming.!@3"
-var DbName = "jizhangbo"
+var UserDb = "userdb"
+var InfoDb = "infodb"
 
 // 服务器相关
 var ServerPort = "20000"

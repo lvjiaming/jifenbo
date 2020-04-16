@@ -1,6 +1,27 @@
 syntax = "proto3";
 import "Common/msg.proto";
 
+message RegisterReq // 注册请求
+{
+    User user = 1;
+}
+
+message RegisterRep // 注册回复
+{
+    Code code = 1;
+}
+
+message LoginReq  // 登录的请求
+{
+    User user = 2;
+}
+
+message LoginRep // 登录的回复
+{
+    Code code = 1;
+    User user = 2;
+}
+
 message SelectInfo // 查询信息
 {
     int32 id = 1;

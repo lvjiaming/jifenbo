@@ -1,7 +1,7 @@
 export class EventManager {
-    private _observerList = [];
+    protected _observerList = null;
     constructor() {
-
+        this._observerList = [];
     }
 
     /**
@@ -17,9 +17,9 @@ export class EventManager {
         if (target) {
             this._observerList.push(target);
         } else {
-            cc.log(`target is null`)
+            console.log(`target is null`)
         }
-        cc.log(`this.ObserverList.length : ${this._observerList.length}`);
+        console.log(`this.ObserverList.length : ${this._observerList.length}`);
     }
 
     /**
@@ -32,7 +32,7 @@ export class EventManager {
                 this._observerList.splice(index, 1);
             }
         });
-        cc.log(`this.ObserverList.length : ${this._observerList.length}`);
+        console.log(`this.ObserverList.length : ${this._observerList.length}`);
     }
     /**
      *  移除所有的观察者
@@ -51,7 +51,7 @@ export class EventManager {
                 item.onEventMessage(event, msg);
             });
         } catch (err) {
-            cc.error(`抛出异常：${err}`);
+            console.error(`抛出异常：${err}`);
         }
     }
 }

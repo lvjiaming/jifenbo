@@ -1,4 +1,5 @@
 import {EventManager} from "./EventManager";
+import {TipMgr} from "../Common/TipMgr";
 export class GameEventManager extends EventManager{
     public gameSocket = null;  // 连接
     protected _hostStr = null; // 连接地址
@@ -25,6 +26,7 @@ export class GameEventManager extends EventManager{
         this._reconnectTimer = null;
         this._eventCache = [];
         this._isLock = false;
+        super.constructor();
     }
 
     /**
@@ -58,19 +60,19 @@ export class GameEventManager extends EventManager{
         cc.log("连接服务器：", this._hostStr);
         this.gameSocket = new WebSocket(hostStr);
         this.gameSocket.onopen = () => {
-            cc.log(`websocket has connect`);
+            console.log(`websocket has connect`);
             if (callBack && callBack instanceof Function) {
                 callBack();
             }
         };
         this.gameSocket.onerror = () => {
-            cc.log(`websocket connect error`);
+            console.log(`websocket connect error`);
             // this.reconnect();
         };
         this.gameSocket.onclose = () => {
-            cc.log(`websocket has close`);
+            console.log(`websocket has close`);
             if (this._isSelfClose) {
-                cc.log(`玩家主动断开连接，不重连`);
+                console.log(`玩家主动断开连接，不重连`);
             } else {
                 this.reconnect();
             }
@@ -108,20 +110,20 @@ export class GameEventManager extends EventManager{
     public reconnect(): void {
         this._reconnectCurTime ++;
         if (this._reconnectCurTime > this._reconnectMaxTime) {
-            cc.log(`重连次数已达最大`);
-            cc.comTip.hide();
+            console.log(`重连次数已达最大`);
+            TipMgr.getInstance().hide();
             if (this._curListen && this._curListen.reconnectFail) {
                 this._curListen.reconnectFail();
             }
             return;
         }
-        cc.log(`正在进行第次${this._reconnectCurTime}重连`);
-        cc.comTip.show(`正在进行第次${this._reconnectCurTime}重连。。`);
+        console.log(`正在进行第次${this._reconnectCurTime}重连`);
+        TipMgr.getInstance().show(`正在进行第次${this._reconnectCurTime}重连`);
         this._reconnectTimer = setTimeout(() => {
             this.connect(this._hostStr, () => {
-                cc.log(`已重连。。。`);
-                cc.comTip.hide();
-                cc.comTip.show(`重连成功`, 2);
+                console.log(`已重连`);
+                TipMgr.getInstance().hide();
+                TipMgr.getInstance().show(`重连成功`, 2);
                 clearTimeout(this._reconnectTimer);
                 this._reconnectCurTime = 0;
                 if (this._curListen && this._curListen.reconnectSuc) {

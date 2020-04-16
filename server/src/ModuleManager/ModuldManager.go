@@ -2,27 +2,39 @@ package ModuleManager
 
 import (
 	"../Cfg"
-	"../ConnectModule"
-	"../DbModule"
+	"./DbModule"
+	"errors"
 	"fmt"
 	"sync"
 )
+
 var (
-	db *DbModule.Db
+	moduleMge *moduleManager
 )
 
-func ConnectDb(waitGroup *sync.WaitGroup)  {
+/**
+ 管理模块
+ */
+type moduleManager struct {
+	db map[string]*DbModule.Db
+}
+
+/**
+ 连接db
+ */
+func (m *moduleManager) ConnectDb (waitGroup *sync.WaitGroup, dbName string)  {
 	defer waitGroup.Done()
-	db = &DbModule.Db{
+	m.db[dbName] = &DbModule.Db{
 		Ip: Cfg.DbIp,
 		Port: Cfg.DbPort,
 		MaxIdle: 10,
-		MaxOpen: 10,
+		MaxOpen: 20,
 		User: Cfg.DbUser,
 		Pwd: Cfg.DbPwd,
-		DbName: Cfg.DbName,
+		DbName: dbName,
 	}
-	err := db.Init()
+	curDb := m.db[dbName]
+	err := curDb.Init()
 	if err != nil {
 		fmt.Println("连接出错：", err.Error())
 	} else {
@@ -40,13 +52,32 @@ func ConnectDb(waitGroup *sync.WaitGroup)  {
 		//}
 	}
 }
-func GetDb() *DbModule.Db {
-	return db
+
+/**
+ 按dbname获取db
+ */
+func (m *moduleManager) GetDb (dbName string) (interface{}, error) {
+	var err error
+	var dbM interface{}
+	if m.db[dbName] == nil {
+		err = errors.New("db not find")
+	} else {
+		switch dbName {
+		case Cfg.UserDb:
+			dbM, err = DbModule.GetUserDb(m.db[dbName])
+		case Cfg.InfoDb:
+
+		}
+	}
+	return dbM, err
 }
 
-func ConnectServer()  {
-	err := ConnectModule.StartServer()
-	if err != nil {
-		fmt.Println(err.Error())
+/**
+ 获取模块管理器
+ */
+func GetModuleManager() *moduleManager {
+	if moduleMge == nil {
+		moduleMge = &moduleManager{db: make(map[string]*DbModule.Db)}
 	}
+	return moduleMge
 }
