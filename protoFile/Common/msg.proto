@@ -10,6 +10,12 @@ enum Event
     EVENT_LOGIN_REQ = 3; // 登录请求
     EVENT_LOGIN_REP = 4; // 登录回复
     EVENT_ADD_ONE_INFO = 5; // 新增信息
+    EVENT_QUERY_INFO_REQ = 6; // 请求查询
+    EVENT_RETURN_INFO_LIST = 7; // 返回信息列表
+    EVENT_CHANGE_INFO_REQ = 8; // 修改信息的请求
+    EVENT_CHANGE_INFO_REP = 9; // 修改信息的回复
+    EVENT_DEL_INFO_REQ = 10; // 删除信息的请求
+    EVENT_DEL_INFO_REP = 11; // 删除信息的回复
 }
 
 
@@ -35,8 +41,8 @@ message User // 玩家
 
 message Info // 信息
 {
-    int32 userid = 1;
+    int32 id = 1;
     int32 time = 2;
     string usetype = 3;
-    int32 val = 4;
+    float val = 4;
 }

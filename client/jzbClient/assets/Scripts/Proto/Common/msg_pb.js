@@ -421,10 +421,10 @@ proto.Info.prototype.toObject = function(opt_includeInstance) {
  */
 proto.Info.toObject = function(includeInstance, msg) {
   var f, obj = {
-    userid: jspb.Message.getFieldWithDefault(msg, 1, 0),
+    id: jspb.Message.getFieldWithDefault(msg, 1, 0),
     time: jspb.Message.getFieldWithDefault(msg, 2, 0),
     usetype: jspb.Message.getFieldWithDefault(msg, 3, ""),
-    val: jspb.Message.getFieldWithDefault(msg, 4, 0)
+    val: +jspb.Message.getFieldWithDefault(msg, 4, 0.0)
   };
 
   if (includeInstance) {
@@ -463,7 +463,7 @@ proto.Info.deserializeBinaryFromReader = function(msg, reader) {
     switch (field) {
     case 1:
       var value = /** @type {number} */ (reader.readInt32());
-      msg.setUserid(value);
+      msg.setId(value);
       break;
     case 2:
       var value = /** @type {number} */ (reader.readInt32());
@@ -474,7 +474,7 @@ proto.Info.deserializeBinaryFromReader = function(msg, reader) {
       msg.setUsetype(value);
       break;
     case 4:
-      var value = /** @type {number} */ (reader.readInt32());
+      var value = /** @type {number} */ (reader.readFloat());
       msg.setVal(value);
       break;
     default:
@@ -505,7 +505,7 @@ proto.Info.prototype.serializeBinary = function() {
  */
 proto.Info.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getUserid();
+  f = message.getId();
   if (f !== 0) {
     writer.writeInt32(
       1,
@@ -527,8 +527,8 @@ proto.Info.serializeBinaryToWriter = function(message, writer) {
     );
   }
   f = message.getVal();
-  if (f !== 0) {
-    writer.writeInt32(
+  if (f !== 0.0) {
+    writer.writeFloat(
       4,
       f
     );
@@ -537,16 +537,16 @@ proto.Info.serializeBinaryToWriter = function(message, writer) {
 
 
 /**
- * optional int32 userid = 1;
+ * optional int32 id = 1;
  * @return {number}
  */
-proto.Info.prototype.getUserid = function() {
+proto.Info.prototype.getId = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
 };
 
 
 /** @param {number} value */
-proto.Info.prototype.setUserid = function(value) {
+proto.Info.prototype.setId = function(value) {
   jspb.Message.setField(this, 1, value);
 };
 
@@ -582,11 +582,11 @@ proto.Info.prototype.setUsetype = function(value) {
 
 
 /**
- * optional int32 val = 4;
+ * optional float val = 4;
  * @return {number}
  */
 proto.Info.prototype.getVal = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 4, 0));
+  return /** @type {number} */ (+jspb.Message.getFieldWithDefault(this, 4, 0.0));
 };
 
 
@@ -605,7 +605,13 @@ proto.Event = {
   EVENT_REGISTER_REP: 2,
   EVENT_LOGIN_REQ: 3,
   EVENT_LOGIN_REP: 4,
-  EVENT_ADD_ONE_INFO: 5
+  EVENT_ADD_ONE_INFO: 5,
+  EVENT_QUERY_INFO_REQ: 6,
+  EVENT_RETURN_INFO_LIST: 7,
+  EVENT_CHANGE_INFO_REQ: 8,
+  EVENT_CHANGE_INFO_REP: 9,
+  EVENT_DEL_INFO_REQ: 10,
+  EVENT_DEL_INFO_REP: 11
 };
 
 /**

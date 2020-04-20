@@ -18,7 +18,9 @@ import (
 
 type UserId int
 type UserName string
-type UserPwd string 
+type UserPwd string
+type UseType string
+type UseTime int
 
 /**
  db模块

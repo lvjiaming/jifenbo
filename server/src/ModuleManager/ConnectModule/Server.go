@@ -13,6 +13,7 @@ import (
 
 var (
 	UserDb *DbModule.UserDb
+	userList []*handle
 )
 
 /**
@@ -21,11 +22,18 @@ var (
 
 func connect(ws *websocket.Conn)  {
 	//fmt.Print("有玩家连接呢\n")
-	handle := handle{
+	handle := &handle{
 		ws: ws,
 		wsMsg: websocket.Message,
 	}
+	userList = append(userList, handle)
 	defer func() {
+		for key, val := range userList{
+			if val.ws == ws {
+				userList = append(userList[:key], userList[key + 1:]...)
+				break
+			}
+		}
 		ws.Close()
 		//fmt.Print("有玩家断开连接\n")
 	}()
@@ -48,15 +56,11 @@ func StartServer() (err error) {
 	// 这里获取到userDb
 	db, err := ModuleManager.GetModuleManager().GetDb(Cfg.UserDb)
 	if err == nil {
-		uDb, ok := db.(*DbModule.UserDb)
-		if ok {
+		uDb, ok := DbModule.GetUserDb(db)
+		if ok != nil {
+			fmt.Println(ok.Error())
+		} else {
 			UserDb = uDb
-			//UserDb.Insert("张三", "abd")
-			//UserDb.QueryAllUser()
-			//err := UserDb.Update(DbModule.UserName("嘻嘻"),DbModule.UserId(2),DbModule.UserPwd("520"))
-			//if err != nil {
-			//	fmt.Println(err.Error())
-			//}
 		}
 	}
 	fmt.Print("服务器开启中\n")

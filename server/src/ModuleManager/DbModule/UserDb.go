@@ -16,6 +16,8 @@ var (
 	updatePwdStr = "update user set pwd = ? where id = ?"
 	updatePwdAndNameStr = "update user set name = ?,pwd = ? where id = ?"
 	queryAllStr = "SELECT id,name,pwd FROM user"
+	queryUserByNameStr = "SELECT id,name,pwd FROM user where name = ?"
+	queryUserByIdStr = "SELECT id,name,pwd FROM user where id = ?"
 )
 
 /**
@@ -70,29 +72,38 @@ func (u *UserDb) Insert (name UserName, pwd UserPwd) error {
 /**
  查询所有玩家
  */
-func (u *UserDb) QueryAllUser () error {
+func (u *UserDb) QueryAllUser () ([]UserInfo, error) {
 	var err error
 	err = u.db.Pool.Ping()
 	if err != nil {
-		return err
+		return nil, err
 	}
 	var userInfo []UserInfo
 	// Select函数可以获取切片数据，并结构体化
 	err = u.db.Pool.Select(&userInfo, queryAllStr)
-	fmt.Println(userInfo)
-	return err
+	//fmt.Println(userInfo)
+	return userInfo, err
 }
 
 /**
  通过筛选条件进行查询
  */
-func (u *UserDb) QueryUserToTerm (args ...interface{}) error {
+func (u *UserDb) QueryUserToTerm (term interface{}) (UserInfo, error) {
 	var err error
+	var userInfo UserInfo
 	err = u.db.Pool.Ping()
 	if err != nil {
-		return err
+		return userInfo, err
 	}
-	return err
+	sql := ""
+	switch term.(type) {
+	case UserName:
+		sql = queryUserByNameStr
+	case UserId:
+		sql = queryUserByIdStr
+	}
+	err = u.db.Pool.Get(&userInfo, sql, term)
+	return userInfo, err
 }
 
 /**

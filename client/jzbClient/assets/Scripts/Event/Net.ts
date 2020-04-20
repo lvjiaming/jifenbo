@@ -20,6 +20,10 @@ export class Net extends GameEventManager{
                 this.sendMessage(msgId, data);
                 break;
             }
+            default: {
+                this.sendMessage(msgId, data);
+                break;
+            }
         }
     }
 
@@ -33,6 +37,10 @@ export class Net extends GameEventManager{
             }
             case msgPb.Event.EVENT_LOGIN_REP: {
                 data = jpzPb.LoginRep.deserializeBinary(body);
+                break;
+            }
+            case msgPb.Event.EVENT_MSG_INFO: {
+                data = msgPb.Code.deserializeBinary(body);
                 break;
             }
         }

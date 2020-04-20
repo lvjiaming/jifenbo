@@ -37,6 +37,7 @@ export default class NewClass extends cc.Component {
             Net.getInstance().connect(CommonCfg.HALL_HOST, () => {
                 TipMgr.getInstance().show("服务器连接成功", 1);
                 this.isShowLogin(true);
+                this._autoLogin();
             });
         });
     }
@@ -117,14 +118,37 @@ export default class NewClass extends cc.Component {
             TipMgr.getInstance().show("不能输入空！！");
         } else {
             TipMgr.getInstance().show("登录中！！");
-            const login = new jzbPb.LoginReq();
-            const user = new jzbPb.User();
-            user.setName(name.getComponent(cc.EditBox).string);
-            user.setPwd(pw.getComponent(cc.EditBox).string);
-            login.setUser(user);
-            Net.getInstance().send(msgPb.Event.EVENT_LOGIN_REQ, login);
+            this._login(name.getComponent(cc.EditBox).string, pw.getComponent(cc.EditBox).string);
         }
     }
+
+    /**
+     *  登录
+     * @private
+     */
+    private _login(name: string, pwd: string): void {
+        cc.sys.localStorage.setItem("userInfo", JSON.stringify({name: name, pwd: pwd}));
+        const login = new jzbPb.LoginReq();
+        const user = new jzbPb.User();
+        user.setName(name);
+        user.setPwd(pwd);
+        login.setUser(user);
+        Net.getInstance().send(msgPb.Event.EVENT_LOGIN_REQ, login);
+    }
+
+    /**
+     *  自动登录
+     * @private
+     */
+    private _autoLogin(): void {
+        cc.log("自动登录");
+        const userInfo = cc.sys.localStorage.getItem("userInfo");
+        if (userInfo && userInfo != "") {
+            const info = JSON.parse(userInfo);
+            this._login(info.name, info.pwd);
+        }
+    }
+
     /**
      *  注册
      */

@@ -56,18 +56,19 @@ func (m *moduleManager) ConnectDb (waitGroup *sync.WaitGroup, dbName string)  {
 /**
  按dbname获取db
  */
-func (m *moduleManager) GetDb (dbName string) (interface{}, error) {
+func (m *moduleManager) GetDb (dbName string) (*DbModule.Db, error) {
 	var err error
-	var dbM interface{}
+	var dbM *DbModule.Db
 	if m.db[dbName] == nil {
 		err = errors.New("db not find")
 	} else {
-		switch dbName {
-		case Cfg.UserDb:
-			dbM, err = DbModule.GetUserDb(m.db[dbName])
-		case Cfg.InfoDb:
-
-		}
+		dbM = m.db[dbName]
+		//switch dbName {
+		//case Cfg.UserDb:
+		//	dbM, err = DbModule.GetUserDb(m.db[dbName])
+		//case Cfg.InfoDb:
+		//	dbM, err = DbModule.GetInfoDb(m.db[dbName])
+		//}
 	}
 	return dbM, err
 }
