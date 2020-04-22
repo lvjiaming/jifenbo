@@ -125,7 +125,9 @@ func (i *InfoDb) QueryInfoToTerm (args ...interface{}) ([]*Info, error) {
 		case UseType:
 			uType = val
 		case UseTime:
-			uTime = append(uTime, val.(UseTime))
+			if val.(UseTime) != 0 {
+				uTime = append(uTime, val.(UseTime))
+			}
 		}
 	}
 	var infoList []*Info
@@ -144,7 +146,9 @@ func (i *InfoDb) QueryInfoToTerm (args ...interface{}) ([]*Info, error) {
 			return infoList, errors.New("条件不对啊")
 		}
 	}
+	//fmt.Println("参数：", uType, uTime)
 	sqlStr := fmt.Sprintf(sql, i.getTableName())
+	//fmt.Println("查询语句：", sqlStr)
 	//通配符％，应该是参数字符串的一部分，也就是说%必须作为字符串写到参数里面去，而不能在sql语句
 	if uType != nil && len(uTime) == 2 {
 		err = i.db.Pool.Select(&infoList, sqlStr, uTime[0], uTime[1], "%" + uType.(UseType) + "%")
@@ -248,11 +252,9 @@ func GetInfoDb(db *Db, uid UserId) (*InfoDb, error) {
 	if pingErr != nil {
 		return nil, pingErr
 	}
-	if infoDb == nil {
-		infoDb = &InfoDb{
-			db: db,
-			userId: uid,
-		}
+	infoDb = &InfoDb{
+		db: db,
+		userId: uid,
 	}
 	tabName := infoDb.getTableName()
 	sql := fmt.Sprintf(infoCreTabStr, tabName)

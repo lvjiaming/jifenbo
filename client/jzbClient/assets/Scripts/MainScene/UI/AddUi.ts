@@ -51,7 +51,7 @@ export default class AddUi extends BaseUI {
                 const info = new msgPb.Info();
                 info.setUsetype(useType);
                 info.setVal(val);
-                addReq.setInfo(info)
+                addReq.setInfo(info);
                 Net.getInstance().send(msgPb.Event.EVENT_ADD_ONE_INFO, addReq);
             }
         } else {

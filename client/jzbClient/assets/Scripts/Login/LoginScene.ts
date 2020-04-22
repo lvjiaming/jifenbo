@@ -30,9 +30,10 @@ export default class NewClass extends cc.Component {
     registerNode = null;
 
     onLoad () {
+        Net.getInstance().setListen(this);
         Net.getInstance().addObserver(this);
         TipMgr.getInstance().init(this.node);
-        resLoad.loadDirRes("dirRes/Common", () => {
+        resLoad.loadDirRes("dirRes", () => {
             TipMgr.getInstance().show("连接服务器中");
             Net.getInstance().connect(CommonCfg.HALL_HOST, () => {
                 TipMgr.getInstance().show("服务器连接成功", 1);
@@ -47,7 +48,23 @@ export default class NewClass extends cc.Component {
     }
 
     onDestroy() {
+        Net.getInstance().removeListen();
         Net.getInstance().removeObserver(this);
+    }
+
+    /**
+     *  重连成功
+     */
+    public reconnectSuc(): void {
+        this.isShowLogin(true);
+        this._autoLogin();
+    }
+
+    /**
+     *  重连失败
+     */
+    public reconnectFail(): void {
+
     }
 
     /**

@@ -1,7 +1,7 @@
 /**
  *  uiclass
  */
-interface UIClass<T extends BaseUI> {
+export interface UIClass<T extends BaseUI> {
     new(): T,
     getPath(): string, // 获取ui的路径
 }
@@ -37,7 +37,7 @@ export class UIManager {
         return this.uimage;
     }
 
-    private _lastUi: cc.Node = null; // 上个ui
+    private _uiList: Array<cc.Node> = [];
 
     // 泛型声明
     // function functionName <T>(args: T) {}
@@ -49,6 +49,21 @@ export class UIManager {
                 const ui = cc.instantiate(prefab);
                 const parNode = ui.getComponent(uiClass) as BaseUI;
                 parNode.par.addChild(ui);
+                ui.path = uiClass.getPath();
+                this._uiList.push(ui);
+            }
+        });
+    }
+
+    /**
+     *  s删除ui
+     * @param uiClass
+     */
+    public delUI<T extends BaseUI>(uiClass: UIClass<T>): void {
+        this._uiList.forEach((item: any, index: number) => {
+            if (item.path == uiClass.getPath()) {
+                item.destroy();
+                this._uiList.splice(index, 1);
             }
         });
     }

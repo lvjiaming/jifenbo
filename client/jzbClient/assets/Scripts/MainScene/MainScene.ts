@@ -4,7 +4,6 @@ import {Net} from "../Event/Net";
 import jzbPb = require('../Proto/JiZhangBo/jiZhangBo_pb')
 import msgPb = require('../Proto/Common/msg_pb')
 import {TipMgr} from "../Common/TipMgr";
-import {Utils} from "../Common/Utils";
 const {ccclass, property} = cc._decorator;
 
 @ccclass
@@ -23,7 +22,7 @@ export default class NewClass extends cc.Component {
     }
 
     start () {
-        cc.log("时间：", Utils.getTime(1587375543));
+        
     }
 
     onDestroy() {

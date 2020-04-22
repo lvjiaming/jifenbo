@@ -30,7 +30,7 @@ export class TipMgr {
             this._curPNode.getChildByName("CommonTip").destroy();
         }
         try {
-            const pop = cc.instantiate(resLoad.dirResList["Common"]["COMMONTIP"]);
+            const pop = cc.instantiate(resLoad.dirResList["dirRes"]["COMMONTIP"]);
             pop.time = time;
             pop.getComponent("CommonTip").setNote(str);
             this._curPNode.addChild(pop,this._popZIndex);

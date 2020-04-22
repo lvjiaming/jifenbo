@@ -1,4 +1,4 @@
-import {UI_CFG, UIManager} from "../../UIManager/UIManager";
+import {UI_CFG, UIManager, UIClass} from "../../UIManager/UIManager";
 import AddUi from "./AddUi";
 import QueryUi from "./QueryUi";
 import MeUi from "./MeUi";
@@ -11,10 +11,13 @@ export default class NewClass extends cc.Component {
 
     private _autoBtnName: string = "BtnMe";
 
+    private _curShowPop: UIClass<T> = null;
+
     onLoad () {
         this._selectBtn(this.node.getChildByName(this._autoBtnName));
         this.node.parent.zIndex = UI_CFG.UI_ZINDEX2;
         UIManager.getInstance().showUI(MeUi);
+        this._curShowPop = MeUi;
     }
 
     start () {
@@ -41,23 +44,29 @@ export default class NewClass extends cc.Component {
      */
     public onBtnClick(event: any, custom: string): void {
         this._selectBtn(event.target);
+        if (this._curShowPop) {
+            UIManager.getInstance().delUI(this._curShowPop);
+        }
         switch (custom) {
             case "add": {
-                UIManager.getInstance().showUI(AddUi);
+                this._curShowPop = AddUi;
                 break;
             }
             case "query": {
-                UIManager.getInstance().showUI(QueryUi);
+                this._curShowPop = QueryUi;
                 break;
             }
             case "me": {
-                UIManager.getInstance().showUI(MeUi);
+                this._curShowPop = MeUi;
                 break;
             }
             default: {
                 cc.log(`未知的：${custom}`);
                 break;
             }
+        }
+        if (this._curShowPop) {
+            UIManager.getInstance().showUI(this._curShowPop);
         }
     }
 

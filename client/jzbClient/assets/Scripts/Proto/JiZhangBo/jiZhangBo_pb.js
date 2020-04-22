@@ -740,7 +740,8 @@ proto.QueryInfoReq.prototype.toObject = function(opt_includeInstance) {
 proto.QueryInfoReq.toObject = function(includeInstance, msg) {
   var f, obj = {
     usetype: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    time: jspb.Message.getFieldWithDefault(msg, 2, 0)
+    starttime: jspb.Message.getFieldWithDefault(msg, 2, 0),
+    endtime: jspb.Message.getFieldWithDefault(msg, 3, 0)
   };
 
   if (includeInstance) {
@@ -783,7 +784,11 @@ proto.QueryInfoReq.deserializeBinaryFromReader = function(msg, reader) {
       break;
     case 2:
       var value = /** @type {number} */ (reader.readInt32());
-      msg.setTime(value);
+      msg.setStarttime(value);
+      break;
+    case 3:
+      var value = /** @type {number} */ (reader.readInt32());
+      msg.setEndtime(value);
       break;
     default:
       reader.skipField();
@@ -820,10 +825,17 @@ proto.QueryInfoReq.serializeBinaryToWriter = function(message, writer) {
       f
     );
   }
-  f = message.getTime();
+  f = message.getStarttime();
   if (f !== 0) {
     writer.writeInt32(
       2,
+      f
+    );
+  }
+  f = message.getEndtime();
+  if (f !== 0) {
+    writer.writeInt32(
+      3,
       f
     );
   }
@@ -846,17 +858,32 @@ proto.QueryInfoReq.prototype.setUsetype = function(value) {
 
 
 /**
- * optional int32 time = 2;
+ * optional int32 startTime = 2;
  * @return {number}
  */
-proto.QueryInfoReq.prototype.getTime = function() {
+proto.QueryInfoReq.prototype.getStarttime = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
 };
 
 
 /** @param {number} value */
-proto.QueryInfoReq.prototype.setTime = function(value) {
+proto.QueryInfoReq.prototype.setStarttime = function(value) {
   jspb.Message.setField(this, 2, value);
+};
+
+
+/**
+ * optional int32 endTime = 3;
+ * @return {number}
+ */
+proto.QueryInfoReq.prototype.getEndtime = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 3, 0));
+};
+
+
+/** @param {number} value */
+proto.QueryInfoReq.prototype.setEndtime = function(value) {
+  jspb.Message.setField(this, 3, value);
 };
 
 

@@ -43,6 +43,10 @@ export class Net extends GameEventManager{
                 data = msgPb.Code.deserializeBinary(body);
                 break;
             }
+            case msgPb.Event.EVENT_RETURN_INFO_LIST: {
+                data = jpzPb.InfoList.deserializeBinary(body);
+                break;
+            }
         }
         console.log(data);
         this.notifyEvent(msgId, data);

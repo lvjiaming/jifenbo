@@ -175,8 +175,9 @@ func (h *handle) delInfo (msgByte []byte)  {
 func (h *handle) queryInfo (msgByte []byte)  {
 	queryReq := &jiZhangBo.QueryInfoReq{}
 	h.decodeData(msgByte, queryReq)
+	//fmt.Println(queryReq)
 	infoList, err := h.infoDb.QueryInfoToTerm(DbModule.UseType(queryReq.Usetype),
-		DbModule.UseTime(queryReq.Time))
+		DbModule.UseTime(queryReq.StartTime), DbModule.UseTime(queryReq.EndTime))
 	if err != nil {
 		fmt.Println(err.Error())
 		code := h.getCode(msg.CodeType_ERR, "查找失败，请重新查找")

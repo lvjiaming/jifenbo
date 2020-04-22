@@ -25,7 +25,8 @@ message LoginRep // 登录的回复
 message QueryInfoReq // 查询信息请求
 {
     string usetype = 1;
-    int32 time = 2;
+    int32 startTime = 2;
+    int32 endTime = 3;
     // repeated表示可重复
     // 表示有多个Info
 //    repeated Info infolist = 3;
