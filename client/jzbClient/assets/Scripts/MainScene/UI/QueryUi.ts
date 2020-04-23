@@ -59,6 +59,7 @@ export default class QueryUi extends BaseUI {
 
     onLoad () {
         Net.getInstance().addObserver(this);
+        InfoManager.getInstance().initData();
         InfoManager.getInstance().setDelOptNode(this.delOptNode);
         this._hasSetEndTiem = false;
         this._hasSetStartTime = false;

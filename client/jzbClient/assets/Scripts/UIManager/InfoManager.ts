@@ -72,6 +72,7 @@ export class InfoManager {
         this._curShowInfoList.forEach((item: InfoClass<T>) => {
             item.showDelUI();
         });
+        cc.log(this._curShowInfoList);
     }
 
     /**
@@ -164,6 +165,13 @@ export class InfoManager {
      */
     public addShowInfo<T extends InfoBaseClass>(infoClsss: InfoClass<T>): void {
         this._curShowInfoList.push(infoClsss);
+        for (let index = this._curShowInfoList.length - 1; index >= 0 ; index--) {
+            const curInfo = this._curShowInfoList[index];
+            if (!curInfo._data) {
+                this._curShowInfoList.splice(index, 1);
+            }
+        }
+        // cc.log(this._curShowInfoList);
     }
 
     /**
@@ -214,5 +222,16 @@ export class InfoManager {
      */
     public setCurAllInfo(infoList: Array<any>): void {
         this._curAllInfo = infoList || [];
+    }
+
+    /**
+     *  初始化数据
+     */
+    public initData(): void {
+        this.initInfoState();
+        this._curDelList = [];
+        this._curShowInfoList = [];
+        this._curAllInfo = [];
+        this._curDelOptNode = null;
     }
 }

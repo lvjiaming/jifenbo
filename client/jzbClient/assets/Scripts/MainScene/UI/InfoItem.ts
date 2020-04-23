@@ -52,11 +52,11 @@ export default class InfoItem extends InfoBaseClass {
         this.node.on("touchend", this._touchEnd, this, false);
         this.node.on("touchcancel", this._touchCancel, this, false);
         this.node.on("touchmove", this._touchMove, this, false);
-        InfoManager.getInstance().addShowInfo(this);
 
         if (InfoManager.getInstance().getInfoState() == INFO_STATE.DEL) {
             this.showDelUI();
         }
+        InfoManager.getInstance().addShowInfo(this);
     }
 
     start () {
@@ -64,7 +64,7 @@ export default class InfoItem extends InfoBaseClass {
     }
 
     onDestroy() {
-        InfoManager.getInstance().removeShowInfo(this);
+        // InfoManager.getInstance().removeShowInfo(this);
         this.node.off("touchstart", this._touchStart, this, false);
         this.node.off("touchend", this._touchEnd, this, false);
         this.node.off("touchcancel", this._touchCancel, this, false);
