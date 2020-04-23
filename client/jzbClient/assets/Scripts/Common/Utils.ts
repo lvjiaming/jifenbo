@@ -63,4 +63,20 @@ export class Utils {
         curVal = Math.ceil(curVal * 100) / 100;
         return curVal;
     }
+
+    public static setScreenFit(canvas_node) {
+        const winSize: cc.Size = cc.winSize;
+        const frameSize: cc.Size = cc.view.getFrameSize();
+        const visibleSize = cc.view.getVisibleSize();
+        const visibleOrigin = cc.view.getVisibleOrigin();
+
+        const realWH = frameSize.width/frameSize.height;
+
+        if ( realWH < 1.5 ) { //iPad=1.333, iphone4=1.5: 不要拉伸缩放(留黑边)
+            canvas_node.getComponent(cc.Canvas).fitWidth = true;
+        } else { //其它分辨率: 需拉伸缩放填满屏幕
+            canvas_node.scaleY = visibleSize.height/winSize.height;
+            canvas_node.scaleX = visibleSize.width/winSize.width;
+        }
+    }
 }

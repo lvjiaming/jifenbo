@@ -29,6 +29,7 @@ export class Net extends GameEventManager{
 
     public onMsg(msgId, body): void {
         cc.log("协议id: ", msgId);
+        // cc.log(body);
         let data = null;
         switch (msgId) {
             case msgPb.Event.EVENT_REGISTER_REP: {
@@ -45,6 +46,10 @@ export class Net extends GameEventManager{
             }
             case msgPb.Event.EVENT_RETURN_INFO_LIST: {
                 data = jpzPb.InfoList.deserializeBinary(body);
+                break;
+            }
+            case msgPb.Event.EVENT_DEL_INFO_REP: {
+                data = jpzPb.DelInfoRep.deserializeBinary(body);
                 break;
             }
         }

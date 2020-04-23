@@ -4,6 +4,7 @@ import {Net} from "../Event/Net";
 import jzbPb = require('../Proto/JiZhangBo/jiZhangBo_pb')
 import msgPb = require('../Proto/Common/msg_pb')
 import {TipMgr} from "../Common/TipMgr";
+import {Utils} from "../Common/Utils";
 const {ccclass, property} = cc._decorator;
 
 @ccclass
@@ -16,6 +17,7 @@ export default class NewClass extends cc.Component {
     nameLab = null;
 
     onLoad () {
+        Utils.setScreenFit(this.node);
         TipMgr.getInstance().init(this.node);
         this._initName();
         Net.getInstance().addObserver(this);

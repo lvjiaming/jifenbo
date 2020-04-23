@@ -39,6 +39,8 @@ func (i *InfoDb) Insert (utype UseType, val float32) error {
 		return errors.New("信息错误")
 	}
 	var err error
+	fmt.Println("连接：", i)
+	fmt.Println("db：", i.db)
 	pingErr := i.db.Pool.Ping()
 	if pingErr != nil {
 		return pingErr
@@ -230,6 +232,70 @@ func (i *InfoDb) UpdateInfo (id int, args ...interface{}) error {
 		}
 	}
 	return err
+}
+
+/**
+ 查询本周记录
+ */
+func (i *InfoDb) QueryWeekInfo () ([]*Info, error) {
+	var err error
+	err = i.db.Pool.Ping()
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println("查询本周记录")
+	var info []*Info
+	// Select函数可以获取切片数据，并结构体化
+	//FROM_UNIXTIME可以将时间戳转换为时间
+	// curdate获取当前时间
+	sql := fmt.Sprintf("SELECT id,usetype,val,time FROM %s " +
+		"where month(FROM_UNIXTIME(%s.time)) = " +
+		"month(curdate()) and " +
+		"week(FROM_UNIXTIME(%s.time)) = week(curdate())", i.getTableName(),
+		i.getTableName(), i.getTableName())
+	err = i.db.Pool.Select(&info, sql)
+	return info, err
+}
+
+/**
+查询本月记录
+*/
+func (i *InfoDb) QueryMonInfo () ([]*Info, error) {
+	var err error
+	err = i.db.Pool.Ping()
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println("查询本月记录")
+	var info []*Info
+	// Select函数可以获取切片数据，并结构体化
+	sql := fmt.Sprintf("SELECT id,usetype,val,time FROM %s " +
+		"where month(FROM_UNIXTIME(%s.time)) = " +
+		"month(curdate()) and " +
+		"year(FROM_UNIXTIME(%s.time)) = year(curdate())", i.getTableName(),
+		i.getTableName(), i.getTableName())
+	err = i.db.Pool.Select(&info, sql)
+	return info, err
+}
+
+/**
+查询本年记录
+*/
+func (i *InfoDb) QueryYearInfo () ([]*Info, error) {
+	var err error
+	err = i.db.Pool.Ping()
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println("查询本年记录")
+	var info []*Info
+	// Select函数可以获取切片数据，并结构体化
+	sql := fmt.Sprintf("SELECT id,usetype,val,time FROM %s " +
+		"where year(FROM_UNIXTIME(%s.time)) = " +
+		"year(curdate())", i.getTableName(),
+		i.getTableName())
+	err = i.db.Pool.Select(&info, sql)
+	return info, err
 }
 
 /*

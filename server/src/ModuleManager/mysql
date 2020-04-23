@@ -347,3 +347,33 @@ count( ArticleId )     sdate
 6     0909
 11     0910
 3     0911
+
+一、年度查询
+查询 本年度的数据
+SELECT *
+FROM blog_article
+WHERE year( FROM_UNIXTIME( BlogCreateTime ) ) = year( curdate( ))
+
+
+二、查询季度数据
+查询数据附带季度数
+SELECT ArticleId, quarter( FROM_UNIXTIME( `BlogCreateTime` ) )
+FROM `blog_article`
+其他的同前面部分：查询 本季度的数据
+SELECT *
+FROM blog_article
+WHERE quarter( FROM_UNIXTIME( BlogCreateTime ) ) = quarter( curdate( ))
+
+
+
+三、查询月度数据
+本月统计(MySQL)
+select * from booking where month(booking_time) =
+
+month(curdate()) and year(booking_time) = year(curdate())
+
+本周统计(MySQL)
+
+select * from spf_booking where month(booking_time) =
+
+month(curdate()) and week(booking_time) = week(curdate())

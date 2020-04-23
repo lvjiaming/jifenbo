@@ -108,6 +108,17 @@ func (h *handle) DealWithLogin (msgByte []byte)  {
 					} else {
 						h.infoDb = tabInfo
 					}
+					// 测试
+					//h.infoDb.Insert(DbModule.UseType("19年1月的测试"), 22)
+					//infoList,err := h.infoDb.QueryYearInfo()
+					//if err != nil {
+					//	fmt.Println(err)
+					//} else {
+					//	fmt.Println("数据长度：", len(infoList))
+					//	for _, info := range infoList{
+					//		fmt.Println("信息：", info.Id, info.Time, info.UserType, info.Val)
+					//	}
+					//}
 				}
 			}
 		}
@@ -159,13 +170,16 @@ func (h *handle) delInfo (msgByte []byte)  {
 		code := h.getCode(msg.CodeType_ERR, "删除失败")
 		delRep := &jiZhangBo.DelInfoRep{}
 		delRep.Code = code
-		h.send(msg.Event_EVENT_DEL_INFO_REP, code)
+		h.send(msg.Event_EVENT_DEL_INFO_REP, delRep)
 	} else {
 		code := h.getCode(msg.CodeType_SUC, "删除成功")
-		delRep := &jiZhangBo.DelInfoRep{}
-		delRep.Code = code
-		delRep.Idlist = info.Idlist
-		h.send(msg.Event_EVENT_DEL_INFO_REP, code)
+		delRep := &jiZhangBo.DelInfoRep{
+			Code: code,
+		}
+		for _, id := range info.Idlist {
+			delRep.Idlist = append(delRep.Idlist, id)
+		}
+		h.send(msg.Event_EVENT_DEL_INFO_REP, delRep)
 	}
 }
 
