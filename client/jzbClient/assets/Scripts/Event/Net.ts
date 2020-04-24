@@ -52,6 +52,10 @@ export class Net extends GameEventManager{
                 data = jpzPb.DelInfoRep.deserializeBinary(body);
                 break;
             }
+            case msgPb.Event.EVENT_CHANGE_INFO_REP: {
+                data = jpzPb.ChangeInfoRep.deserializeBinary(body);
+                break;
+            }
         }
         console.log(data);
         this.notifyEvent(msgId, data);

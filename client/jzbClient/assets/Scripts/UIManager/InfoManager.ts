@@ -5,6 +5,8 @@ interface InfoClass<T extends InfoBaseClass>{
     hideDelUI()
     selectDel()
     unSelectDel();
+    showChangeUI()
+    hideChangeUI()
 }
 
 export class InfoBaseClass extends cc.Component {
@@ -35,6 +37,8 @@ export class InfoManager {
     private _curAllInfo: Array<any> = []; // 当前的所有消息
 
     private _curDelList: Array<number> = []; // 当前删除的列表
+
+    private _curSelectInfo: InfoClass<T> = null;
 
     /**
      *  显示气泡
@@ -222,6 +226,29 @@ export class InfoManager {
      */
     public setCurAllInfo(infoList: Array<any>): void {
         this._curAllInfo = infoList || [];
+    }
+
+    /**
+     *  开始修改信息
+     */
+    public startChange<T extends InfoBaseClass>(info: InfoClass<T>): void {
+        this._curInfoState = INFO_STATE.CHANGE;
+        if (this._curSelectInfo) {
+            this._curSelectInfo.hideChangeUI();
+        }
+        this._curSelectInfo = info;
+        this._curSelectInfo.showChangeUI();
+    }
+
+    /**
+     *  结束修改
+     */
+    public endChange(): void {
+        this._curInfoState = INFO_STATE.NONE;
+        if (this._curSelectInfo) {
+            this._curSelectInfo.hideChangeUI();
+        }
+        this._curSelectInfo = null;
     }
 
     /**

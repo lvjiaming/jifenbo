@@ -1,5 +1,9 @@
 import {Utils} from "../../Common/Utils";
 import {InfoManager, InfoBaseClass, INFO_STATE} from "../../UIManager/InfoManager";
+import jzbPb = require("../../Proto/JiZhangBo/jiZhangBo_pb");
+import msgPb = require("../../Proto/Common/msg_pb");
+import {Net} from "../../Event/Net";
+import {TipMgr} from "../../Common/TipMgr";
 const {ccclass, property} = cc._decorator;
 
 @ccclass
@@ -36,10 +40,28 @@ export default class InfoItem extends InfoBaseClass {
     editNode = null;
 
     @property({
+        type: cc.Node,
+        tooltip: "信息的节点"
+    })
+    infoNode = null;
+
+    @property({
         type: cc.Toggle,
         tooltip: "删除选择"
     })
     delToggle = null;
+
+    @property({
+        type: cc.EditBox,
+        tooltip: "用途的编辑框",
+    })
+    useTypeEditBox = null;
+
+    @property({
+        type: cc.EditBox,
+        tooltip: "金额的编辑框",
+    })
+    valEditBox = null;
 
     private _index: number = 0;
 
@@ -129,6 +151,83 @@ export default class InfoItem extends InfoBaseClass {
     }
 
     /**
+     *  显示修改的界面
+     */
+    public showChangeUI(): void {
+        if (this.editNode) {
+            this.editNode.active = true;
+            const changeNode = this.editNode.getChildByName("ChangeInfo");
+            if (changeNode) {
+                changeNode.active = true;
+                if (this.infoNode) {
+                    this.infoNode.active = false;
+                }
+                if (this.useTypeEditBox) {
+                    this.useTypeEditBox.string = this._data.getUsetype();
+                }
+                if (this.valEditBox) {
+                    this.valEditBox.string = Utils.changeVal(this._data.getVal());
+                }
+            }
+        }
+    }
+
+    /**
+     *  隐藏修改的界面
+     */
+    public hideChangeUI(): void {
+        if (this.editNode) {
+            this.editNode.active = false;
+            const changeNode = this.editNode.getChildByName("ChangeInfo");
+            if (changeNode) {
+                changeNode.active = false;
+                if (this.infoNode) {
+                    this.infoNode.active = true;
+                }
+            }
+        }
+    }
+
+    /**
+     *  取消的事件
+     */
+    public onCancelClick(): void {
+        InfoManager.getInstance().endChange();
+    }
+
+    /**
+     *  确认的事件
+     */
+    public onFixChangeClick(): void {
+        if (this.useTypeEditBox && this.valEditBox) {
+            if (!this.useTypeEditBox.string && !this.valEditBox.string) {
+                cc.log("不做改变");
+                InfoManager.getInstance().endChange();
+                return;
+            }
+            if (this.useTypeEditBox.string == this._data.getUsetype() &&
+                Utils.changeVal(parseFloat(this.valEditBox.string)) == Utils.changeVal(this._data.getVal())) {
+                cc.log("信息未改变");
+            } else {
+                const changeReq = new jzbPb.ChangeInfoReq();
+                if (this.useTypeEditBox.string) {
+                    cc.log("用途变化");
+                    changeReq.setChangeusetype(this.useTypeEditBox.string);
+                }
+                if (this.valEditBox.string) {
+                    cc.log("金额变化");
+                    changeReq.setChangeval(Utils.changeVal(parseFloat(this.valEditBox.string)));
+                }
+                changeReq.setInfoid(this._data.getId());
+                Net.getInstance().send(msgPb.Event.EVENT_CHANGE_INFO_REQ, changeReq);
+            }
+            InfoManager.getInstance().endChange();
+        } else {
+            InfoManager.getInstance().endChange();
+        }
+    }
+
+    /**
      *  选择删除
      */
     public selectDel(): void {
@@ -159,6 +258,22 @@ export default class InfoItem extends InfoBaseClass {
                 selectNode.active = false;
             }
         }
+    }
+
+    /**
+     *  重新设置信息
+     */
+    public reSetInfo(data: any): void {
+        this._data = data;
+        this._initInfo();
+    }
+
+    /**
+     *  获取信息
+     * @returns {any}
+     */
+    public getInfo(): any {
+        return this._data;
     }
 
     /**

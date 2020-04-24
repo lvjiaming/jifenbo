@@ -167,7 +167,12 @@ export class GameEventManager extends EventManager{
         const bytes = new Uint8Array(data);  // 转化数据
         let msgId = bytes[0];  //  协议id放在uint8Array的第一位
         const body = new Uint8Array(data, 1, data.byteLength - 1);
-        this.onMsg(msgId, body);
+        if (this._isLock) {
+            this._eventCache.push({msgId: msgId, msgData: body});
+            cc.log("消息阻塞中");
+        } else {
+            this.onMsg(msgId, body);
+        }
     }
 
     /**

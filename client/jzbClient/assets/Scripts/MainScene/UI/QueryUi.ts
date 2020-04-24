@@ -57,6 +57,8 @@ export default class QueryUi extends BaseUI {
     private _maxYe: number = 0; // 最大页
     private _data: Array<T> = null; //内容数组
 
+    private _curShowInfoList: Array<cc.Node> = [];
+
     onLoad () {
         Net.getInstance().addObserver(this);
         InfoManager.getInstance().initData();
@@ -87,6 +89,9 @@ export default class QueryUi extends BaseUI {
      */
     private _updateYeMei(): void {
         if (this.yeMeiLab) {
+            if (this._maxYe == 0) {
+                this._curYe = 0;
+            }
             this.yeMeiLab.string = `${this._curYe}/${this._maxYe}`;
         }
     }
@@ -111,6 +116,7 @@ export default class QueryUi extends BaseUI {
                 }
                 if (noteNode) {
                     // const list = [];
+                    this._curShowInfoList = [];
                     for (let index = 0; index < CFG.ONE_YE_NUM; index++) {
                         const curData = this._data[index + (this._curYe - 1) * CFG.ONE_YE_NUM];
                         if (curData) {
@@ -120,6 +126,7 @@ export default class QueryUi extends BaseUI {
                             infoItem.infoIndex = index + (this._curYe - 1) * CFG.ONE_YE_NUM + 1;
                             infoItem.y = index * CFG.INFO_INTEM_SPACE_Y - infoItem.height / 2;
                             noteNode.addChild(infoItem);
+                            this._curShowInfoList.push(infoItem);
                             // list.push(infoItem.getComponent("InfoItem"))
                         } else {
                             break;
@@ -317,11 +324,14 @@ export default class QueryUi extends BaseUI {
 
     public onEventMessage(event, data): void {
         switch (event) {
-            case msgPb.Event.EVENT_RETURN_INFO_LIST: {
+            case msgPb.Event.EVENT_RETURN_INFO_LIST: {  // 返回信息列表
+                Net.getInstance().setEventLockState(true);
                 this._dealWithData(data);
+                Net.getInstance().setEventLockState(false);
                 break;
             }
-            case msgPb.Event.EVENT_DEL_INFO_REP: {
+            case msgPb.Event.EVENT_DEL_INFO_REP: { // 删除信息的回复
+                Net.getInstance().setEventLockState(true);
                 if (data.getCode().getCode() == msgPb.CodeType.ERR) {
                     TipMgr.getInstance().show(data.getCode().getMsg(), 1)
                 } else {
@@ -336,6 +346,30 @@ export default class QueryUi extends BaseUI {
                     this._curYe = 1;
                     this._updateNote();
                 }
+                Net.getInstance().setEventLockState(false);
+                break;
+            }
+            case msgPb.Event.EVENT_CHANGE_INFO_REP: { // 修改信息的回复
+                Net.getInstance().setEventLockState(true);
+                TipMgr.getInstance().show(data.getCode().getMsg(), 1);
+                if (data.getCode().getCode() == msgPb.CodeType.SUC) {
+
+                    for (let index = 0; index < this._data.length; index++) {
+                        if (this._data[index].getId() == data.getInfo().getId()) {
+                            this._data[index] = data.getInfo();
+                        }
+                    }
+                    this._curShowInfoList.forEach((item) => {
+                        const infoClass: any = item.getComponent("InfoItem");
+                        if (infoClass) {
+                            const oldData = infoClass.getInfo();
+                            if (oldData.getId() == data.getInfo().getId()) {
+                                infoClass.reSetInfo(data.getInfo());
+                            }
+                        }
+                    });
+                }
+                Net.getInstance().setEventLockState(false);
                 break;
             }
         }
