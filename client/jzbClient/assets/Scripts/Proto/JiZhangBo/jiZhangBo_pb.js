@@ -539,7 +539,8 @@ proto.LoginRep.prototype.toObject = function(opt_includeInstance) {
 proto.LoginRep.toObject = function(includeInstance, msg) {
   var f, obj = {
     code: (f = msg.getCode()) && Common_msg_pb.Code.toObject(includeInstance, f),
-    user: (f = msg.getUser()) && Common_msg_pb.User.toObject(includeInstance, f)
+    user: (f = msg.getUser()) && Common_msg_pb.User.toObject(includeInstance, f),
+    sinfo: (f = msg.getSinfo()) && Common_msg_pb.StatisticalInfo.toObject(includeInstance, f)
   };
 
   if (includeInstance) {
@@ -586,6 +587,11 @@ proto.LoginRep.deserializeBinaryFromReader = function(msg, reader) {
       reader.readMessage(value,Common_msg_pb.User.deserializeBinaryFromReader);
       msg.setUser(value);
       break;
+    case 3:
+      var value = new Common_msg_pb.StatisticalInfo;
+      reader.readMessage(value,Common_msg_pb.StatisticalInfo.deserializeBinaryFromReader);
+      msg.setSinfo(value);
+      break;
     default:
       reader.skipField();
       break;
@@ -628,6 +634,14 @@ proto.LoginRep.serializeBinaryToWriter = function(message, writer) {
       2,
       f,
       Common_msg_pb.User.serializeBinaryToWriter
+    );
+  }
+  f = message.getSinfo();
+  if (f != null) {
+    writer.writeMessage(
+      3,
+      f,
+      Common_msg_pb.StatisticalInfo.serializeBinaryToWriter
     );
   }
 };
@@ -690,6 +704,36 @@ proto.LoginRep.prototype.clearUser = function() {
  */
 proto.LoginRep.prototype.hasUser = function() {
   return jspb.Message.getField(this, 2) != null;
+};
+
+
+/**
+ * optional StatisticalInfo sInfo = 3;
+ * @return {?proto.StatisticalInfo}
+ */
+proto.LoginRep.prototype.getSinfo = function() {
+  return /** @type{?proto.StatisticalInfo} */ (
+    jspb.Message.getWrapperField(this, Common_msg_pb.StatisticalInfo, 3));
+};
+
+
+/** @param {?proto.StatisticalInfo|undefined} value */
+proto.LoginRep.prototype.setSinfo = function(value) {
+  jspb.Message.setWrapperField(this, 3, value);
+};
+
+
+proto.LoginRep.prototype.clearSinfo = function() {
+  this.setSinfo(undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.LoginRep.prototype.hasSinfo = function() {
+  return jspb.Message.getField(this, 3) != null;
 };
 
 

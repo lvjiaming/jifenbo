@@ -15,6 +15,18 @@ var (
 		"val float(5,2));"
 )
 
+const ( // 统计信息的类型
+	WEEK_INFO = iota
+	MON_INFO
+	YEAR_INFO
+)
+
+type StatisticalInfo struct { // 统计信息
+	Week float32
+	Mon float32
+	Year float32
+}
+
 type InfoDb struct {
 	db *Db
 	userId UserId
@@ -39,8 +51,6 @@ func (i *InfoDb) Insert (utype UseType, val float32) error {
 		return errors.New("信息错误")
 	}
 	var err error
-	fmt.Println("连接：", i)
-	fmt.Println("db：", i.db)
 	pingErr := i.db.Pool.Ping()
 	if pingErr != nil {
 		return pingErr
@@ -235,67 +245,101 @@ func (i *InfoDb) UpdateInfo (id int, args ...interface{}) error {
 }
 
 /**
- 查询本周记录
+ 查询统计信息列表
  */
-func (i *InfoDb) QueryWeekInfo () ([]*Info, error) {
+func (i *InfoDb) QueryStatisticalInfoList (infoType int, times ...interface{}) ([]*Info, error) {
 	var err error
 	err = i.db.Pool.Ping()
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("查询本周记录")
 	var info []*Info
+	sql := i.getStatisticalInfoSql("id,usetype,val,time", infoType, times)
+	err = i.db.Pool.Select(&info, sql)
+	return info, err
+}
+
+
+/**
+ 查找统计信息
+ */
+func (i *InfoDb) QueryStatisticalInfo (infoType int, times ...interface{}) (float32, error) {
+	var err error
+	var res float32
+	err = i.db.Pool.Ping()
+	if err != nil {
+		return res, err
+	}
+	sql := i.getStatisticalInfoSql("SUM(val)", infoType, times)
+	stem, paperErr := i.db.Pool.Prepare(sql)
+	if paperErr != nil {
+		return res, paperErr
+	}
+	defer stem.Close()
+	err = stem.QueryRow().Scan(&res)
+	return res, err
+}
+
+/**
+ 获取当前的统计信息
+ */
+func (i *InfoDb) GetCurStatisticalInfo () *StatisticalInfo {
+	week, _ := i.QueryStatisticalInfo(WEEK_INFO)
+	mon, _  := i.QueryStatisticalInfo(MON_INFO)
+	year, _ := i.QueryStatisticalInfo(YEAR_INFO)
+	sInfo := &StatisticalInfo{
+		Week: week,
+		Mon: mon,
+		Year: year,
+	}
+	return sInfo
+}
+
+/**
+ 获取统计信息的sql语句
+ */
+func (i *InfoDb)getStatisticalInfoSql(queryInfo string, infoType int, times ...interface{}) string {
+	var year string
+	var mon string
+	for _, val := range times{
+		switch val.(type) {
+		case Year:
+			year = strconv.Itoa(int(val.(Year)))
+		case Mon:
+			mon = strconv.Itoa(int(val.(Mon)))
+		}
+	}
+	if year == "" {
+		year = "year(curdate())"
+	}
+	if mon == "" {
+		mon = "month(curdate())"
+	}
+	sql := ""
+
 	// Select函数可以获取切片数据，并结构体化
 	//FROM_UNIXTIME可以将时间戳转换为时间
 	// curdate获取当前时间
-	sql := fmt.Sprintf("SELECT id,usetype,val,time FROM %s " +
-		"where month(FROM_UNIXTIME(%s.time)) = " +
-		"month(curdate()) and " +
-		"week(FROM_UNIXTIME(%s.time)) = week(curdate())", i.getTableName(),
-		i.getTableName(), i.getTableName())
-	err = i.db.Pool.Select(&info, sql)
-	return info, err
-}
-
-/**
-查询本月记录
-*/
-func (i *InfoDb) QueryMonInfo () ([]*Info, error) {
-	var err error
-	err = i.db.Pool.Ping()
-	if err != nil {
-		return nil, err
+	switch infoType {
+	case WEEK_INFO:
+		sql = fmt.Sprintf("SELECT %s FROM %s " +
+			"where month(FROM_UNIXTIME(%s.time)) = " +
+			"%s and " +
+			"week(FROM_UNIXTIME(%s.time)) = week(curdate())",queryInfo , i.getTableName(),
+			i.getTableName(), mon, i.getTableName())
+	case MON_INFO:
+		sql = fmt.Sprintf("SELECT %s FROM %s " +
+			"where month(FROM_UNIXTIME(%s.time)) = " +
+			"%s and " +
+			"year(FROM_UNIXTIME(%s.time)) = %s",queryInfo , i.getTableName(),
+			i.getTableName(),mon, i.getTableName(), year)
+	case YEAR_INFO:
+		sql = fmt.Sprintf("SELECT %s FROM %s " +
+			"where year(FROM_UNIXTIME(%s.time)) = " +
+			"%s", queryInfo, i.getTableName(),
+			i.getTableName(), year)
 	}
-	fmt.Println("查询本月记录")
-	var info []*Info
-	// Select函数可以获取切片数据，并结构体化
-	sql := fmt.Sprintf("SELECT id,usetype,val,time FROM %s " +
-		"where month(FROM_UNIXTIME(%s.time)) = " +
-		"month(curdate()) and " +
-		"year(FROM_UNIXTIME(%s.time)) = year(curdate())", i.getTableName(),
-		i.getTableName(), i.getTableName())
-	err = i.db.Pool.Select(&info, sql)
-	return info, err
-}
-
-/**
-查询本年记录
-*/
-func (i *InfoDb) QueryYearInfo () ([]*Info, error) {
-	var err error
-	err = i.db.Pool.Ping()
-	if err != nil {
-		return nil, err
-	}
-	fmt.Println("查询本年记录")
-	var info []*Info
-	// Select函数可以获取切片数据，并结构体化
-	sql := fmt.Sprintf("SELECT id,usetype,val,time FROM %s " +
-		"where year(FROM_UNIXTIME(%s.time)) = " +
-		"year(curdate())", i.getTableName(),
-		i.getTableName())
-	err = i.db.Pool.Select(&info, sql)
-	return info, err
+	return sql
 }
 
 /*

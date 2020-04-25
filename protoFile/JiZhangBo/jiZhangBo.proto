@@ -20,6 +20,7 @@ message LoginRep // 登录的回复
 {
     Code code = 1;
     User user = 2;
+    StatisticalInfo sInfo = 3;
 }
 
 message QueryInfoReq // 查询信息请求
@@ -65,8 +66,3 @@ message InfoList // 信息列表
 {
     repeated Info infolist = 1;
 }
-
-//message ChangeInfoReq
-//{
-//
-//}

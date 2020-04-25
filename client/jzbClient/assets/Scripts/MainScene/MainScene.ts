@@ -25,7 +25,7 @@ export default class NewClass extends cc.Component {
     }
 
     start () {
-        
+        Net.getInstance().setEventLockState(false);
     }
 
     onDestroy() {
@@ -71,6 +71,10 @@ export default class NewClass extends cc.Component {
         switch (event) {
             case msgPb.Event.EVENT_MSG_INFO: {
                 TipMgr.getInstance().show(data.getMsg(), 2);
+                break;
+            }
+            case msgPb.Event.EVENT_STATISYICAL_INFO_CHANGE: {
+                User.getInstance().updateStatisyicalInfo(data);
                 break;
             }
             case msgPb.Event.EVENT_LOGIN_REP: {

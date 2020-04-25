@@ -162,6 +162,16 @@ export default class NewClass extends cc.Component {
         const userInfo = cc.sys.localStorage.getItem("userInfo");
         if (userInfo && userInfo != "") {
             const info = JSON.parse(userInfo);
+
+            const name = this.loginNode.getChildByName("name");
+            const pw = this.loginNode.getChildByName("password");
+            if (name) {
+                name.getComponent(cc.EditBox).string = info.name;
+            }
+            if (pw) {
+                pw.getComponent(cc.EditBox).string = info.pwd;
+            }
+
             this._login(info.name, info.pwd);
         }
     }
@@ -219,6 +229,8 @@ export default class NewClass extends cc.Component {
                 console.log("登录回复");
                 if (data.getCode().getCode() == msgPb.CodeType.SUC) {
                     User.getInstance().init(data.getUser());
+                    User.getInstance().updateStatisyicalInfo(data.getSinfo());
+                    Net.getInstance().setEventLockState(true);
                     cc.director.loadScene("MainScene.fire");
                 } else {
                     TipMgr.getInstance().show(data.getCode().getMsg(), 1);

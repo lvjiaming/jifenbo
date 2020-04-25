@@ -21,6 +21,8 @@ type UserName string
 type UserPwd string
 type UseType string
 type UseTime int
+type Mon int32
+type Year int32
 
 /**
  db模块

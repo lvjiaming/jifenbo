@@ -14,7 +14,7 @@ import (
 type handle struct {
 	ws *websocket.Conn // ws连接
 	wsMsg websocket.Codec
-	userInfo *DbModule.UserInfo
+	user *DbModule.UserInfo
 	infoDb *DbModule.InfoDb
 }
 const idAdd = 1000000
@@ -87,7 +87,7 @@ func (h *handle) DealWithLogin (msgByte []byte)  {
 		} else {
 			hasLogin := false // 用于判断是否已经登陆
 			for _, user := range userList{
-				if user.userInfo != nil && user.userInfo.UserId == userInfo.UserId {
+				if user.user != nil && user.user.UserId == userInfo.UserId {
 					hasLogin = true
 				}
 			}
@@ -95,8 +95,7 @@ func (h *handle) DealWithLogin (msgByte []byte)  {
 				fmt.Print("玩家已登录，重复登录")
 				h.loginRep(msg.CodeType_ERR, "玩家已登录，重复登录", nil)
 			} else {
-				h.loginRep(msg.CodeType_SUC, "登录成功", &userInfo)
-				h.userInfo = &userInfo
+				h.user = &userInfo
 				// 以下在玩家登陆时，连接自己的数据库表
 				db, err := ModuleManager.GetModuleManager().GetDb(Cfg.InfoDb)
 				if err != nil {
@@ -109,8 +108,10 @@ func (h *handle) DealWithLogin (msgByte []byte)  {
 						h.infoDb = tabInfo
 					}
 					// 测试
+					//info := h.infoDb.GetCurStatisticalInfo()
+					//fmt.Println(*info)
 					//h.infoDb.Insert(DbModule.UseType("19年1月的测试"), 22)
-					//infoList,err := h.infoDb.QueryYearInfo()
+					//infoList,err := h.infoDb.QueryStatisticalInfoList(DbModule.WEEK_INFO)
 					//if err != nil {
 					//	fmt.Println(err)
 					//} else {
@@ -118,8 +119,11 @@ func (h *handle) DealWithLogin (msgByte []byte)  {
 					//	for _, info := range infoList{
 					//		fmt.Println("信息：", info.Id, info.Time, info.UserType, info.Val)
 					//	}
+					//	res, _ := h.infoDb.QueryStatisticalInfo(DbModule.MON_INFO)
+					//	fmt.Println(res)
 					//}
 				}
+				h.loginRep(msg.CodeType_SUC, "登录成功", &userInfo)
 			}
 		}
 	}
@@ -130,12 +134,20 @@ func (h *handle) DealWithLogin (msgByte []byte)  {
  */
 func (h *handle) loginRep (codeType msg.CodeType, str string, userInfo *DbModule.UserInfo)  {
 	var user *msg.User
+	var sInfo *msg.StatisticalInfo
 	if codeType == msg.CodeType_SUC {
 		user = &msg.User{Id: int32(changeId(userInfo.UserId)), Name: userInfo.UserName}
+		info := h.infoDb.GetCurStatisticalInfo()
+		sInfo = &msg.StatisticalInfo{
+			WeekVal: info.Week,
+			MonVal:  info.Mon,
+			YearVal: info.Year,
+		}
 	}
 	login := &jiZhangBo.LoginRep{
 		Code: h.getCode(codeType, str),
 		User: user,
+		SInfo: sInfo,
 	}
 	h.send(msg.Event_EVENT_LOGIN_REP, login)
 }
@@ -146,7 +158,7 @@ func (h *handle) loginRep (codeType msg.CodeType, str string, userInfo *DbModule
 func (h *handle) addInfo (msgByte []byte)  {
 	info := &jiZhangBo.AddInfoReq{}
 	h.decodeData(msgByte, info)
-	fmt.Println("收到的信息：", info)
+	//fmt.Println("收到的信息：", info)
 	err := h.infoDb.Insert(DbModule.UseType(info.Info.Usetype), info.Info.Val)
 	if err != nil {
 		fmt.Println(err.Error())
@@ -155,6 +167,7 @@ func (h *handle) addInfo (msgByte []byte)  {
 	} else {
 		code := h.getCode(msg.CodeType_SUC, "添加成功")
 		h.send(msg.Event_EVENT_MSG_INFO, code)
+		h.statisticalInfoUpdate()
 	}
 }
 
@@ -180,6 +193,7 @@ func (h *handle) delInfo (msgByte []byte)  {
 			delRep.Idlist = append(delRep.Idlist, id)
 		}
 		h.send(msg.Event_EVENT_DEL_INFO_REP, delRep)
+		h.statisticalInfoUpdate()
 	}
 }
 
@@ -244,6 +258,20 @@ func (h *handle) changeInfo (msgByte []byte)  {
 	}
 	changeRep.Code = code
 	h.send(msg.Event_EVENT_CHANGE_INFO_REP, changeRep)
+	h.statisticalInfoUpdate()
+}
+
+/**
+ 更新统计信息
+ */
+func (h *handle) statisticalInfoUpdate ()  {
+	info := h.infoDb.GetCurStatisticalInfo()
+	sInfo := &msg.StatisticalInfo{
+		WeekVal: info.Week,
+		MonVal:  info.Mon,
+		YearVal: info.Year,
+	}
+	h.send(msg.Event_EVENT_STATISYICAL_INFO_CHANGE, sInfo)
 }
 
 /**
