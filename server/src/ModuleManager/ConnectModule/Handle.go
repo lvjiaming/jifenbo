@@ -291,6 +291,9 @@ func (h *handle) getCode (codeType msg.CodeType, str string) *msg.Code {
 	return code
 }
 
+/**
+ 发送消息
+ */
 func (h *handle) send (msgId msg.Event, msgData proto.Message)  {
 	var sendByte []byte
 	msgDataByte, _ := proto.Marshal(msgData)
@@ -301,6 +304,9 @@ func (h *handle) send (msgId msg.Event, msgData proto.Message)  {
 	}
 }
 
+/**
+ id转换
+ */
 func changeId(id int) int {
 	if id > idAdd {
 		id = id - idAdd
