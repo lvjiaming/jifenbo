@@ -5,6 +5,8 @@ import jzbPb = require('../Proto/JiZhangBo/jiZhangBo_pb')
 import msgPb = require('../Proto/Common/msg_pb')
 import {TipMgr} from "../Common/TipMgr";
 import {Utils} from "../Common/Utils";
+// import ende = require('../Common/encryptjs');
+
 const {ccclass, property} = cc._decorator;
 
 @ccclass
@@ -22,6 +24,15 @@ export default class NewClass extends cc.Component {
         this._initName();
         Net.getInstance().addObserver(this);
         Net.getInstance().setListen(this);
+
+        // const data = {1: {pc: 1, pn: 2}, 2: {pc: 1, pn: 10}};
+        // const mishi = "12u312u3i12u31uqweqwe";
+        // const str = JSON.stringify(data);
+        // cc.log("数据：", str);
+        // const enStr = ende.encrypt(str, mishi, 128).toString();
+        // cc.log("加密的字符串", enStr);
+        // const deStr = ende.decrypt(enStr, mishi, 128);
+        // cc.log("解密后的字符串：", deStr)
     }
 
     start () {
