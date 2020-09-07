@@ -48,7 +48,7 @@ export class EventManager {
     public notifyEvent(event, msg): void {
         try {
             this._observerList.forEach((item, index) => {
-                item.onEventMessage(event, msg);
+                item.onEventMessage(event, msg); 
             });
         } catch (err) {
             console.error(`抛出异常：${err}`);
